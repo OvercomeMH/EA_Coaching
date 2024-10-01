@@ -92,7 +92,7 @@ months_effects_last = st.slider(
     'Months Effects Last',
     min_value=1.0,
     max_value=12.0,
-    value=5.14,
+    value=6.0,
     step=0.1
 )
 
