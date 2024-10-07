@@ -97,7 +97,7 @@ months_effects_last = st.slider(
 )
 
 st.markdown(
-    '<p style="font-size:16px; color:black;">This is the most important variable but we are deeply uncertain and no hard evidence exists. Here are some relevant facts drawn from the general population: On average, depression reduces productivity by ~25% and anxiety is pretty similar. On average, our coaching clients gain two points of life satisfaction (measured on a scale of 0-10) over the first six weeks. Academic sources suggest each of life satisfafction point gained results in ~12 percent greater productivity.</p>',
+    '<p style="font-size:16px; color:black;">This is the most important variable but we are deeply uncertain and no hard evidence exists. Here are some relevant facts drawn from the general population: On average, depression reduces productivity by ~25% and anxiety is pretty similar. On average, our coaching clients gain two points of life satisfaction (measured on a scale of 0-10) over the first six weeks. Academic sources suggest each of life satisfaction point gained results in ~12 percent greater productivity.</p>',
     unsafe_allow_html=True
 )
 
