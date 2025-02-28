@@ -17,20 +17,13 @@ st.markdown("""
 
 **Context**
 We're Overcome, an EA-aligned mental health charity. You can see our pitch deck [here](https://www.canva.com/design/DAGSR0iTSfU/SAkv2xJb1BglQNkad1HvdA/edit?utm_content=DAGSR0iTSfU&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton). 
-We had a successful pilot coaching founders with our very best coaches. We want to hire those coaches and scale up our offering.            
+We give founders our very best coaches. This is our best guess at this programme's cost-effectiveness.      
 
 **Instructions:**
 
 - Use the sliders in the **Adjustable Parameters** section to modify the variables.
-- The financial metrics and visualizations will update automatically based on your inputs.
-- Hover over the charts to see more details.
-""")
-
-st.markdown("""
-**Key Points:**
-
-- One dollar of expected value, as defined here, is equivalent to one dollar donated to a GiveWell top charity.
-- Play around with different values then look right to see how they affect the bottom line.
+- See that that affects the cost-effectiveness estimate by looking at the side and bottom sections.
+            
 """)
 
 # ==========================================================
@@ -42,7 +35,7 @@ st.header('Adjustable Parameters')
 # 1. Program Costs
 st.subheader('Program Costs')
 st.markdown(
-    '<p style="font-size:16px; color:black;">Includes all associated costs. The default value, $60k, is all inclusive and what we\'re requesting. We could be ~30% more impactful by hiring a specialist, allowing us to treat more founders overall and give specialised support to those who need it.</p>',
+    '<p style="font-size:16px; color:black;">Includes all associated costs. The default value, $60k, is what it currently costs us.</p>',
     unsafe_allow_html=True
 )
 total_coaching_cost = st.slider(
@@ -56,7 +49,7 @@ total_coaching_cost = st.slider(
 # 2. Number of Participating Founders
 st.subheader('Number of Participating Founders')
 st.markdown(
-    '<p style="font-size:16px; color:black;">Should we not be able to max out our capacity, we\'ll offer the slots to other high-impact people with similar responsibilities (e.g. executives).</p>',
+    '<p style="font-size:16px; color:black;">When we fail to max out our capacity with founders exclusively, we\'ll offer the slots to executives / other key people.</p>',
     unsafe_allow_html=True
 )
 total_founders = st.slider(
@@ -70,7 +63,7 @@ total_founders = st.slider(
 # 3. Retention Metrics
 st.subheader('Retention')
 st.markdown(
-    '<p style="font-size:16px; color:black;">Retention = proportion of founders to complete the programme. Our Pilot retained <90% of founders (n=12). Our general offerings to EAs retain ~70% (n= ~100).</p>',
+    '<p style="font-size:16px; color:black;">Retention = proportion of founders to complete the programme. We currently retain <90% of founders (n>30). Our general offerings to EAs retain ~70% (n= ~200).</p>',
     unsafe_allow_html=True
 )
 retention_rate = st.slider(
@@ -97,7 +90,7 @@ months_effects_last = st.slider(
 )
 
 st.markdown(
-    '<p style="font-size:16px; color:black;">This is the most important variable but we are deeply uncertain and no hard evidence exists. Here are some relevant facts drawn from the general population: On average, depression reduces productivity by ~25% and anxiety is pretty similar. On average, our coaching clients gain two points of life satisfaction (measured on a scale of 0-10) over the first six weeks. Academic sources suggest each of life satisfaction point gained results in ~12 percent greater productivity.</p>',
+    '<p style="font-size:16px; color:black;">This is the most important variable but we are deeply uncertain and no hard evidence exists. Here are some relevant facts drawn from the general population: On average, depression reduces productivity by ~25% and anxiety is pretty similar. On average, our coaching clients gain two points of life satisfaction (measured on a scale of 0-10) over the first six weeks. Academic sources suggest each point of life satisfaction point gained results in ~12 percent greater productivity.</p>',
     unsafe_allow_html=True
 )
 
@@ -112,7 +105,7 @@ percentage_increase_in_productivity = st.slider(
 # 5. Expected Value Metrics
 st.subheader('Expected Value Metrics')
 st.markdown(
-    '<p style="font-size:16px; color:black;">Charity entrepreneurship (2018), using conservative assumptions, estimate the expected value per founder is $217k per annum. That\'s our default value.</p>',
+    '<p style="font-size:16px; color:black;">Charity entrepreneurship (2018), using conservative assumptions, estimate the expected value per founder is $217k per annum. </p>',
     unsafe_allow_html=True
 )
 ev_per_founder_per_year = st.slider(
