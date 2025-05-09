@@ -7,7 +7,7 @@ import numpy as np
 # Set the page layout to wide
 st.set_page_config(layout="wide")
 
-st.title('Cost-Effectiveness Analysis for Founder Coaching Programme')
+st.title('Cost-Effectiveness Analysis for EA Coaching Programme')
 
 # ==========================================================
 #                 INSTRUCTIONS
@@ -17,7 +17,7 @@ st.markdown("""
 
 **Context**
 We're Overcome, an EA-aligned mental health charity. You can see our pitch deck [here](https://www.canva.com/design/DAGSR0iTSfU/SAkv2xJb1BglQNkad1HvdA/edit?utm_content=DAGSR0iTSfU&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton). 
-We give founders our very best coaches. This is our best guess at this programme's cost-effectiveness.      
+We give EAs our best coaches. This is our best guess at this programme's cost-effectiveness.      
 
 **Instructions:**
 
@@ -33,27 +33,24 @@ We give founders our very best coaches. This is our best guess at this programme
 st.header('Adjustable Parameters')
 
 # 1. Program Costs
-st.subheader('Program Costs')
+st.subheader('Per Participant Cost')
 st.markdown(
-    '<p style="font-size:16px; color:black;">Includes all associated costs. The default value, $60k, is what it currently costs us.</p>',
+    '<p style="font-size:16px; color:black;">Includes all associated costs per participant. The default value, $20, is what it currently costs us per participant.</p>',
     unsafe_allow_html=True
 )
-total_coaching_cost = st.slider(
-    'Total Coaching Cost ($)',
-    min_value=30000,  # Minimum value set to $30,000
-    max_value=100000,
-    value=60000,      # Default value set to $60,000
-    step=1000
+per_EA_cost = st.slider(
+    'Per Participant Cost ($)',
+    min_value=10, 
+    max_value=60,
+    value=20,     
+    step=2
 )
 
-# 2. Number of Participating Founders
-st.subheader('Number of Participating Founders')
-st.markdown(
-    '<p style="font-size:16px; color:black;">When we fail to max out our capacity with founders exclusively, we\'ll offer the slots to executives / other key people.</p>',
-    unsafe_allow_html=True
-)
-total_founders = st.slider(
-    'Total Number of Founders',
+# 2. Number of Participating EAs
+st.subheader('Number of Participating EAs')
+
+total_EAs = st.slider(
+    'Total Number of EAs served.',
     min_value=10,
     max_value=500,
     value=172,
@@ -63,7 +60,7 @@ total_founders = st.slider(
 # 3. Retention Metrics
 st.subheader('Retention')
 st.markdown(
-    '<p style="font-size:16px; color:black;">Retention = proportion of founders to complete the programme. We currently retain <90% of founders (n>30). Our general offerings to EAs retain ~70% (n= ~200).</p>',
+    '<p style="font-size:16px; color:black;">Retention = proportion of EAs to complete the programme. We currently retain <90% of EAs (n>30). Our general offerings to EAs retain ~70% (n= ~200).</p>',
     unsafe_allow_html=True
 )
 retention_rate = st.slider(
@@ -90,7 +87,7 @@ months_effects_last = st.slider(
 )
 
 st.markdown(
-    '<p style="font-size:16px; color:black;">This is the most important variable but we are deeply uncertain and no hard evidence exists. Here are some relevant facts drawn from the general population: On average, depression reduces productivity by ~25% and anxiety is pretty similar. On average, our coaching clients gain two points of life satisfaction (measured on a scale of 0-10) over the first six weeks. Academic sources suggest each point of life satisfaction point gained results in ~12 percent greater productivity.</p>',
+    '<p style="font-size:16px; color:black;">This is the most important variable but we are deeply uncertain and no hard evidence exists. Here are some relevant facts drawn from the general population: On average, procrastination reduces productivity by ~25%. On average, our coaching clients gain two points of life satisfaction (measured on a scale of 0-10) over the first six weeks. Academic sources suggest each point of life satisfaction point gained results in ~12 percent greater productivity.</p>',
     unsafe_allow_html=True
 )
 
@@ -105,19 +102,19 @@ percentage_increase_in_productivity = st.slider(
 # 5. Expected Value Metrics
 st.subheader('Expected Value Metrics')
 st.markdown(
-    '<p style="font-size:16px; color:black;">Charity entrepreneurship (2018), using conservative assumptions, estimate the expected value per founder is $217k per annum. </p>',
+    '<p style="font-size:16px; color:black;">Charity entrepreneurship (2018) estimate the expected value per EA is $217k per annum. The minimum legal wage (UK) is $30k. The median EAs annual EV likely falls between these two extremes   </p>',
     unsafe_allow_html=True
 )
-ev_per_founder_per_year = st.slider(
-    'Expected Value per Founder per Year ($)',
-    min_value=10000,
-    max_value=1000000,
-    value=216000,
-    step=2000
+ev_per_EA_per_year = st.slider(
+    'Expected Value per EA per Year ($)',
+    min_value=0,
+    max_value=2000000,
+    value=50000,
+    step=50
 )
 
-# 6. Founder Working Hours
-st.subheader('Founder Working Hours')
+# 6. EA Working Hours
+st.subheader('EA Working Hours')
 
 working_hours_per_week = st.slider(
     'Working Hours per Week',
@@ -135,12 +132,12 @@ working_weeks_per_year = st.slider(
     step=1
 )
 
-# Calculating Cost per Founder Hour
+# Calculating Cost per EA Hour
 total_working_hours_per_year = working_hours_per_week * working_weeks_per_year
-cost_per_founder_hour = ev_per_founder_per_year / total_working_hours_per_year
+cost_per_EA_hour = ev_per_EA_per_year / total_working_hours_per_year
 
-# 7. Founder Opportunity Cost
-st.subheader('Founder Opportunity Cost')
+# 7. EA Opportunity Cost
+st.subheader('EA Opportunity Cost')
 
 st.markdown(
     '<p style="font-size:16px; color:black;">Based on our estimates of tasks given to clients.</p>',
@@ -170,67 +167,67 @@ proportion_time_during_work = st.slider(
 #            CALCULATIONS BASED ON USER INPUTS
 # ==========================================================
 
-# Assume an average number of sessions per founder
-average_sessions_per_founder = 12  # You can adjust this value as needed
+# Assume an average number of sessions per EA
+average_sessions_per_EA = 4  # Default is now 4 sessions
 
 # Cost per session
-cost_per_session = total_coaching_cost / (total_founders * average_sessions_per_founder)
-cost_per_founder = cost_per_session * average_sessions_per_founder
+cost_per_session = per_EA_cost / average_sessions_per_EA
+cost_per_EA = per_EA_cost
 
-# Overall retention rate (since every retained founder gets the improvement)
+# Overall retention rate (since every retained EA gets the improvement)
 overall_retention_rate = retention_rate
 
-# Cost per retained founder
-cost_per_retained_founder = cost_per_founder / overall_retention_rate if overall_retention_rate != 0 else np.nan
+# Cost per retained EA
+cost_per_retained_EA = cost_per_EA / overall_retention_rate if overall_retention_rate != 0 else np.nan
 
-# Total number of retained founders
-total_retained_founders = total_founders * overall_retention_rate
+# Total number of retained EAs
+total_retained_EAs = total_EAs * overall_retention_rate
 
 # Weeks Effects Last
 weeks_effects_last = (months_effects_last / 12) * working_weeks_per_year
 
-# Total Working Hours of Increased Productivity per Retained Founder
+# Total Working Hours of Increased Productivity per Retained EA
 total_working_hours_increased_productivity = working_hours_per_week * weeks_effects_last
 
-# Expected Value per Retained Founder
-expected_value_per_retained_founder = (
-    cost_per_founder_hour *
+# Expected Value per Retained EA
+expected_value_per_retained_EA = (
+    cost_per_EA_hour *
     total_working_hours_increased_productivity *
     (percentage_increase_in_productivity / 100)
 )
 
 # Total expected value gained
-total_expected_value_gained = expected_value_per_retained_founder * total_retained_founders
+total_expected_value_gained = expected_value_per_retained_EA * total_retained_EAs
 
 # Number of productive hours bought
 number_of_productive_hours_bought = (
     total_working_hours_increased_productivity *
     (percentage_increase_in_productivity / 100) *
-    total_retained_founders
+    total_retained_EAs
 )
 
-# Total founder hours spent (adjusted for drop-outs and proportion during work hours)
-# Retained founders
-founder_hours_retained = (
+# Total EA hours spent (adjusted for drop-outs and proportion during work hours)
+# Retained EAs
+EA_hours_retained = (
     retention_rate *
-    total_founders *
-    (average_sessions_per_founder * homework_hours_per_session * proportion_time_during_work)
+    total_EAs *
+    (average_sessions_per_EA * homework_hours_per_session * proportion_time_during_work)
 )
 
 # Drop-outs (attend 2 sessions)
-founder_hours_dropouts = (
+EA_hours_dropouts = (
     (1 - retention_rate) *
-    total_founders *
+    total_EAs *
     (2 * homework_hours_per_session * proportion_time_during_work)
 )
 
-total_founder_hours = founder_hours_retained + founder_hours_dropouts
+total_EA_hours = EA_hours_retained + EA_hours_dropouts
 
-# Total cost of founder opportunity
-total_founder_opportunity_cost = total_founder_hours * cost_per_founder_hour
+# Total cost of EA opportunity
+total_EA_opportunity_cost = total_EA_hours * cost_per_EA_hour
 
 # Total cost (time + money)
-total_cost = total_coaching_cost + total_founder_opportunity_cost
+total_cost = per_EA_cost * total_EAs + total_EA_opportunity_cost
 
 # Net expected value
 net_expected_value = (
@@ -264,16 +261,16 @@ st.header('Financial Analysis Results')
 st.subheader('Additional Metrics')
 
 st.write(f"**Cost per Session:** ${cost_per_session:.2f}")
-st.write(f"**Average Sessions per Founder:** {average_sessions_per_founder:.2f}")
-st.write(f"**Cost per Founder:** ${cost_per_founder:.2f}")
-st.write(f"**Cost per Retained Founder:** ${cost_per_retained_founder:.2f}")
-st.write(f"**Total Number of Retained Founders:** {total_retained_founders:.2f}")
-st.write(f"**Expected Value per Retained Founder:** ${expected_value_per_retained_founder:,.2f}")
+st.write(f"**Average Sessions per EA:** {average_sessions_per_EA:.2f}")
+st.write(f"**Cost per EA:** ${cost_per_EA:.2f}")
+st.write(f"**Cost per Retained EA:** ${cost_per_retained_EA:.2f}")
+st.write(f"**Total Number of Retained EAs:** {total_retained_EAs:.2f}")
+st.write(f"**Expected Value per Retained EA:** ${expected_value_per_retained_EA:,.2f}")
 st.write(f"**Total Cost (Time + Money):** ${total_cost:,.2f}")
 
 # Add a new section at the bottom for removed metrics
 st.markdown("---")
 st.subheader('Detailed Cost Metrics')
 
-st.write(f"**Total Coaching Cost:** ${total_coaching_cost:,.2f}")
-st.write(f"**Total Founder Opportunity Cost:** ${total_founder_opportunity_cost:,.2f}")
+st.write(f"**Total Per Participant Cost:** ${per_EA_cost:,.2f}")
+st.write(f"**Total EA Opportunity Cost:** ${total_EA_opportunity_cost:,.2f}")
