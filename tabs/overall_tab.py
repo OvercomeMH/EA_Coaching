@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np # For np.nan
-from config import ORGANIZATION_RD_BUDGET_USD # Import the R&D budget
+from config import ORGANISATION_FIXED_COSTS # Import the R&D budget
 
 def display_overall_comparison_tab(results_data):
     st.header("Programme Comparison: Key Metrics")
@@ -119,10 +119,10 @@ def display_overall_comparison_tab(results_data):
     if total_org_clients_for_rd_share > 0:
         rd_share_percentage = (total_ea_clients_all_programmes / total_org_clients_for_rd_share) * 100
     
-    conceptual_rd_cost_for_ea_programmes = (rd_share_percentage / 100) * ORGANIZATION_RD_BUDGET_USD
+    conceptual_rd_cost_for_ea_programmes = (rd_share_percentage / 100) * ORGANISATION_FIXED_COSTS
 
     st.markdown(f"""
-    Beyond the direct costs shown above, our organization maintains a fixed annual Research & Development (R&D) budget of **${ORGANIZATION_RD_BUDGET_USD:,.0f}**. 
+    Beyond the direct costs shown above, our organization maintains a fixed annual Research & Development (R&D) budget of **${ORGANISATION_FIXED_COSTS:,.0f}**. 
     This budget supports ongoing improvements, research into new coaching methodologies, and development of materials that benefit all our clients, including EAs.
     
     The EA coaching programmes serve approximately **{total_ea_clients_all_programmes:,.0f}** participants (based on current settings). 

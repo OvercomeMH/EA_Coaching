@@ -39,10 +39,8 @@ DEFAULT_SESSION_DURATION = 1.0 # hour
 
 DEFAULT_TIMEFRAME_OF_INTEREST_MONTHS = 12.0 
 
-# New Advanced Cost Parameters
 DEFAULT_DISAPPOINTMENT_HOURS_PER_DROPOUT = 40.0
-# DEFAULT_ORGANIZATION_YEARLY_CLIENTS = 3600.0
 DEFAULT_BASELINE_ORG_YEARLY_CLIENTS = 3100.0 # Baseline yearly clients for the org, EXCLUDING this specific EA offering's participants
 
 # Constants for overall cost explanation
-ORGANIZATION_RD_BUDGET_USD = 149160.0 # Fixed R&D Budget in USD 
+ORGANISATION_FIXED_COSTS = 136000 # Fixed R&D Budget in USD 
