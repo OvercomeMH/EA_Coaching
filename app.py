@@ -8,7 +8,6 @@ from tabs.model_params_tab import display_model_parameters_tab
 from tabs.assumptions_tab import display_assumptions_tab
 from tabs.overall_tab import display_overall_comparison_tab
 from tabs.programme_tab import display_programme_tab
-from tabs.advanced_cost_settings_tab import display_advanced_cost_settings_tab # New import
 
 # Set the page layout to wide
 st.set_page_config(layout="wide")
@@ -18,13 +17,6 @@ st.title('CEA: Coaching EAs')
 # ==========================================================
 #                 INSTRUCTIONS
 # ==========================================================
-
-st.markdown("""
-**Instructions:**
-- Use the tabs below to switch between different programme offerings.
-- Adjust the sliders to see how cost per productive hour bought changes.
-- All calculations are focused on the cost to buy one productive hour for an EA participant.
-""")
 
 # ==========================================================
 #                 DEFAULT VALUES FOR EACH TAB
@@ -40,19 +32,34 @@ st.markdown("""
 
 # Define tab names and create tabs
 programme_tab_names = list(offerings.keys())
-# New tabs will be inserted before "Overall"
-tab_names = programme_tab_names + ["Model Parameters", "Advanced Cost Settings", "Assumptions", "Overall"] # Added new tab
+# New order: Intro, Programmes, Overall, Assumptions, Model Params (Advanced Cost Settings removed)
+tab_names = ["Intro"] + programme_tab_names + ["Overall", "Assumptions", "Model Parameters"]
 
 all_tabs = st.tabs(tab_names)
 
 # Assign tabs to meaningful variables
-programme_st_tabs = all_tabs[:len(programme_tab_names)]
-model_params_tab_ui = all_tabs[len(programme_tab_names)] 
-advanced_cost_settings_tab_ui = all_tabs[len(programme_tab_names) + 1] # New tab UI
-assumptions_tab_ui = all_tabs[len(programme_tab_names) + 2] # Adjusted index
-overall_tab_ui = all_tabs[-1] # Remains last
+intro_tab_ui = all_tabs[0]
+programme_st_tabs = all_tabs[1 : 1 + len(programme_tab_names)]
+# Calculate the starting index for tabs after programme_st_tabs
+next_tab_index = 1 + len(programme_tab_names)
+overall_tab_ui = all_tabs[next_tab_index]
+assumptions_tab_ui = all_tabs[next_tab_index + 1]
+# advanced_cost_settings_tab_ui will be removed
+model_params_tab_ui = all_tabs[next_tab_index + 2] # Adjusted index, this will be the last tab
 
 offering_results = {}
+
+# --- Render Intro Tab ---
+with intro_tab_ui:
+    st.markdown("""
+    **Instructions:**
+    - Use the tabs below to switch between different programme offerings.
+    - Adjust the sliders to see how cost per productive hour bought changes.
+    - Email [john@overcome.org.uk](mailto:john@overcome.org.uk) if you have any questions.
+    
+    **You should know**
+    - We'll be continously updating this model to reflect our current best understanding, largely for our own benefit.
+    """)
 
 # --- Render Model Parameters Tab ---
 with model_params_tab_ui:
@@ -62,15 +69,10 @@ with model_params_tab_ui:
         prop_time_work_input,
         homework_hrs_input,
         avg_sessions_dropouts_input,
-        session_duration_input
+        session_duration_input,
+        disappointment_hours_input, # Added new variable from model_params_tab
+        baseline_org_yearly_clients_input # Added new variable from model_params_tab
     ) = display_model_parameters_tab()
-
-# --- Render Advanced Cost Settings Tab ---
-with advanced_cost_settings_tab_ui:
-    (
-        disappointment_hours_input,
-        baseline_org_yearly_clients_input
-    ) = display_advanced_cost_settings_tab()
 
 # --- Render Programme Tabs ---
 for i, tab_name in enumerate(programme_tab_names):

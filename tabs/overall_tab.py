@@ -93,17 +93,15 @@ def display_overall_comparison_tab(results_data):
     st.markdown('---') # Separator
     st.subheader("Understanding the Costs")
     st.markdown("""
-    **Direct Programme Cost:** This is the direct cost associated with running each specific EA coaching programme, primarily driven by the number of sessions and participants.
-    
     **Net Productive Hours Bought:** This represents the total additional productive hours gained from participants who completed the programme, after accounting for:
     - Time spent by participants in sessions and on homework during work hours.
     - Time spent by participants on sign-up during work hours.
     - Estimated productivity loss due to participants dropping out (disappointment/delay costs).
     
-    **Cost per Productive Hour & Cost per FTE:** These metrics show the direct cost-effectiveness of the programmes in terms of buying productive time.
+    **Cost per Productive Hour / FTE:** These metrics show the direct cost-effectiveness of the programmes. FTE: One full-time equivalent, for one year, assuming 40 hours a week with no holidays (2080 hours)
     """)
 
-    st.subheader("Context: Organizational Research & Development (R&D) Budget")
+    st.subheader("Fixed Costs")
     # Calculate total EA clients from the results_data for the explanation
     total_ea_clients_all_programmes = 0
     baseline_clients_from_one_prog = 0 # We only need one instance of this from any program's data
@@ -118,16 +116,47 @@ def display_overall_comparison_tab(results_data):
     rd_share_percentage = 0
     if total_org_clients_for_rd_share > 0:
         rd_share_percentage = (total_ea_clients_all_programmes / total_org_clients_for_rd_share) * 100
-    
     conceptual_rd_cost_for_ea_programmes = (rd_share_percentage / 100) * ORGANISATION_FIXED_COSTS
 
+    # New, much shorter explanation
     st.markdown(f"""
-    Beyond the direct costs shown above, our organization maintains a fixed annual Research & Development (R&D) budget of **${ORGANISATION_FIXED_COSTS:,.0f}**. 
-    This budget supports ongoing improvements, research into new coaching methodologies, and development of materials that benefit all our clients, including EAs.
-    
-    The EA coaching programmes serve approximately **{total_ea_clients_all_programmes:,.0f}** participants (based on current settings). 
-    When considering the organization's other baseline activities serving roughly **{baseline_clients_from_one_prog:,.0f}** clients, the EA programmes represent about **{rd_share_percentage:.1f}%** of the total client interactions.
-    
-    Conceptually, this means that **${conceptual_rd_cost_for_ea_programmes:,.0f}** of the R&D budget could be considered as supporting the EA coaching offerings. 
-    This conceptual share is *not* included in the 'Direct Programme Cost' per hour metrics above, but it's an important context for understanding the full investment in delivering high-quality, evidence-based coaching to EAs.
-    """) 
+Our fixed costs are roughly **${ORGANISATION_FIXED_COSTS:,.0f}**. We'd also ask that you cover a fraction of that directly proportional to EA's share of our total clients. If you're up for that, here's an updated table.
+""")
+
+    # Add R&D share to direct programme cost for each programme
+    if total_org_clients_for_rd_share > 0 and not df_display.empty:
+        # Calculate R&D share for each programme
+        rd_share_fraction = ORGANISATION_FIXED_COSTS / total_org_clients_for_rd_share
+        df_with_rd = df_display.copy()
+        # Only add R&D share to actual programmes, not the summary row
+        for prog in ordered_programmes_in_results:
+            if prog in df_with_rd.index:
+                clients = df_with_rd.at[prog, 'Clients Seen'] if 'Clients Seen' in df_with_rd.columns else 0
+                df_with_rd.at[prog, 'Direct Programme Cost'] = df_with_rd.at[prog, 'Direct Programme Cost'] + (clients * rd_share_fraction)
+        # Update summary row
+        if 'Total/Overall Average' in df_with_rd.index:
+            total_clients = df_with_rd.at['Total/Overall Average', 'Clients Seen'] if 'Clients Seen' in df_with_rd.columns else 0
+            df_with_rd.at['Total/Overall Average', 'Direct Programme Cost'] = df_with_rd.at['Total/Overall Average', 'Direct Programme Cost'] + (total_clients * rd_share_fraction)
+        # Recalculate cost metrics
+        if 'Net Prod. Hours Bought' in df_with_rd.columns and 'Direct Programme Cost' in df_with_rd.columns:
+            df_with_rd['Cost / Prod. Hr'] = np.where(
+                df_with_rd['Net Prod. Hours Bought'] != 0,
+                df_with_rd['Direct Programme Cost'] / df_with_rd['Net Prod. Hours Bought'],
+                np.nan
+            )
+            df_with_rd['Cost per FTE'] = np.where(
+                df_with_rd['Net Prod. Hours Bought'] != 0,
+                df_with_rd['Direct Programme Cost'] / (df_with_rd['Net Prod. Hours Bought'] / FTE_HOURS_PER_YEAR),
+                np.nan
+            )
+        # Show updated table
+        st.dataframe(df_with_rd.style.format(valid_formats, na_rep="N/A"), height=(df_with_rd.shape[0] + 1) * 35 + 3)
+
+    # New section: What do I get for the extra money spent on covering fixed costs?
+    st.markdown("## What do I get for the extra money spent on covering fixed costs?")
+    st.markdown("""
+1. The bigger the net loss we incur by serving EAs, the harder it is for me to justify it to our other funders, who've thus far covered 100% of the fixed costs and took on the risk of failure.
+2. Experimentation on how to make the results decay slower has extremely high EV. Play around with sliders to see for yourself.
+3. We we can likely self-fund indefinitely, within twelve months, if we successfully execute on our development plan.
+""")
+    st.markdown('[Read details here](https://docs.google.com/document/d/11z3Inq8lIgNhgyAmlakWyfbmcvOjJQFH7bjjiwu07IE/edit?usp=sharing)') 

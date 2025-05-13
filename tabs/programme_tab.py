@@ -117,7 +117,7 @@ def display_programme_tab(
         min_value=0, max_value=80, value=30 if tab_name == "Procrastination" else tab_defaults["pre_intervention_hours"], step=1, key=f"pre_hours_{tab_name}"
     )
     post_hours = st.slider(
-        'How many hours do you expect them to work after?',
+        'When the treatment has hit maximal effectiveness, but before the effect starts to decay, how many hours do you expect them to work?',
         min_value=0, max_value=80, value=39 if tab_name == "Procrastination" else tab_defaults["post_intervention_hours"], step=1, key=f"post_hours_{tab_name}"
     )
     if tab_name == "Bespoke Offering":
@@ -127,9 +127,8 @@ def display_programme_tab(
     
     # Productivity multiplier slider: always use config value
     productivity_multiplier = st.slider(
-        'How much more productive is each working hour after the intervention? (e.g. 1.10 = 10% more productive)',
-        min_value=0.0, max_value=2.0, value=1.01 if tab_name == "Procrastination" else tab_defaults["productivity_multiplier"], step=0.01, key=f"productivity_multiplier_{tab_name}",
-        help="Multiplier for productivity per hour post-intervention. >1 means more productive, <1 means less productive, 1 means no change."
+        'After the treatment has hit maximal effectiveness, but before the effect starts to decay, how much more productive is each working hour?' + ' (e.g. 1.10 = 10% more productive)',
+        min_value=0.0, max_value=2.0, value=1.01 if tab_name == "Procrastination" else tab_defaults["productivity_multiplier"], step=0.01, key=f"productivity_multiplier_{tab_name}"
     )
     
     implied_productivity_gain = ((post_hours * productivity_multiplier) - pre_hours) / pre_hours * 100 if pre_hours > 0 else 0
