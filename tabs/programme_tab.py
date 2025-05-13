@@ -8,6 +8,7 @@ import numpy as np
 from utils import display_decay_visualisation, calculate_total_gain_per_ea
 # No direct config import needed here as `offerings` (tab_defaults) is passed in.
 from config import DEFAULT_TIMEFRAME_OF_INTEREST_MONTHS
+from config import programme_introductions, programme_productivity_gain_explanations
 
 def display_programme_tab(
     tab_name, 
@@ -23,22 +24,17 @@ def display_programme_tab(
     baseline_org_yearly_clients_config # Retained for context if needed, but not used for cost calculation here
 ):
     st.header(f"{tab_name} Programme")
-    if tab_name == "Bespoke Offering":
-        st.markdown('''
-        **About the Bespoke Offering:**
-        - This programme covers a wide range of issues, from dietary improvement and habit change to severe depression and anxiety.
-        - Users include everyone from executives and grantmakers to unemployed EA-adjacents trying to break into EA roles.
-        - Our best estimate for the median, representative client is someone working in an entry-level role at a mid-tier EA charity who has moderate clinical anxiety.
-        - The median EA user will gain approximately **1.5 points of happiness (on a 0–10 scale)** if they came in seeking help with a mental illness, or about **0.8 points** if they came in for help with behaviour change or productivity.
-        - On average, **65% of users who do one session will go on to do at least six sessions**.
-        ''')
+    # Use config-based introduction text
+    intro_text = programme_introductions.get(tab_name, "")
+    if intro_text:
+        st.markdown(intro_text)
     
     st.subheader("Benefit Duration and Decay")
     decay_model_options = ["Exponential Decay", "Linear Decay", "Custom Curve"]
-    default_decay_model = "Exponential Decay" 
+    default_decay_model = tab_defaults.get("default_decay_model", "Exponential Decay")
 
+    # Evidence base text (optional, keep if you want to show it)
     if tab_name == "Bespoke Offering":
-        default_decay_model = "Exponential Decay"
         st.markdown("""
         **Evidence Base:** The UK's Improving Access to Psychological Therapies (IAPT) program provides 
         the closest studied model to our general programme. Like IAPT, we use low-intensity, CBT-focused 
@@ -49,7 +45,6 @@ def display_programme_tab(
         decay in benefits over time, with approximately 50% annual decay in effects being a reasonable estimate.
         """)
     elif tab_name == "Insomnia":
-        default_decay_model = "Exponential Decay"
         st.markdown("""
         **Evidence Base:** Meta-analysis of cognitive behavioral therapy for insomnia 
         ([van der Zweerde et al., 2019](https://pubmed.ncbi.nlm.nih.gov/31491656/)) shows that 
@@ -57,11 +52,9 @@ def display_programme_tab(
         after therapy, the evidence suggests approximately 60% annual decay in effects.
         """)
     elif tab_name == "Procrastination":
-        default_decay_model = "Linear Decay"
         st.markdown("""
         **Evidence Base:** Very little research exists on the long-term durability of procrastination interventions. 
-        We conservatively estimate that all results will decay linearly to zero within 6 months without further intervention,
-        based on clinical experience rather than specific studies.
+        We suspect that it will decay sharply without additional intervention, which is why we provide a free GoalsWon referral to help prevent relapse.
         """)
     
     decay_model = st.selectbox(
@@ -80,9 +73,7 @@ def display_programme_tab(
     custom_month_sliders = {}
 
     if decay_model == "Exponential Decay":
-        default_decay_rate = 25.0
-        if tab_name == "Bespoke Offering": default_decay_rate = 50.0
-        elif tab_name == "Insomnia": default_decay_rate = 60.0
+        default_decay_rate = tab_defaults.get("default_decay_rate", 25.0)
         annual_decay_rate_input = st.slider(
             'Annual Decay Rate (%)', 0.1, 99.9, default_decay_rate, 0.1, key=f"annual_decay_{tab_name}",
             help="The percentage by which the remaining benefit decreases each year. Cannot be 0% or 100%."
@@ -91,8 +82,7 @@ def display_programme_tab(
         elif tab_name == "Bespoke Offering": st.caption("Based on IAPT outcome data for similar CBT-based interventions.")
         else: st.caption("Happier Lives Institute and Founders Pledge cite a decay of ~25% each year for group therapy for depression.")
     elif decay_model == "Linear Decay":
-        default_months_to_zero = 12.0
-        if tab_name == "Procrastination": default_months_to_zero = 6.0
+        default_months_to_zero = tab_defaults.get("default_months_to_zero", 12.0)
         months_to_zero_input = st.slider(
             'Months until Effect is Zero', 1.0, 60.0, default_months_to_zero, 0.1, key=f"months_to_zero_{tab_name}",
             help="How many months until the linearly decaying effect reaches zero."
@@ -120,40 +110,47 @@ def display_programme_tab(
     )
 
     st.subheader("Intervention Impact & Participants")
+    # Add explanatory sentence about dropouts
+    st.markdown("We assume that anyone who who dropped out without telling us they were better got zero benefit. So, we only need to consider people who've completed the programme.")
     pre_hours = st.slider(
-        'How many hours do you think our median participant would spend on EA activities before the intervention?',
-        min_value=0, max_value=80, value=tab_defaults["pre_intervention_hours"], step=1, key=f"pre_hours_{tab_name}"
+        'How many hours do you think our median completer would spend on EA activities before the intervention?',
+        min_value=0, max_value=80, value=30 if tab_name == "Procrastination" else tab_defaults["pre_intervention_hours"], step=1, key=f"pre_hours_{tab_name}"
     )
-    if tab_name == "Bespoke Offering":
-        st.caption('On average, we retain ~65% of EAs (n> 300). We assume that anyone who did not complete six sessions got zero benefit, unless they explicitly told us their problem was successfully addressed.')
-    else:
-        st.caption('For calibration: The median UK full-time worker reports about 36 hours/week of paid work. Many EAs in entry-level roles report 35–45 hours/week of focused work.')
-    
     post_hours = st.slider(
         'How many hours do you expect them to work after?',
-        min_value=0, max_value=80, value=tab_defaults["post_intervention_hours"], step=1, key=f"post_hours_{tab_name}"
+        min_value=0, max_value=80, value=39 if tab_name == "Procrastination" else tab_defaults["post_intervention_hours"], step=1, key=f"post_hours_{tab_name}"
     )
     if tab_name == "Bespoke Offering":
-        st.caption('The average case of depression/anxiety is estimated to reduce productivity by 25%. The treatments we use reduce symptoms by ~35% on average, which would reduce the impairment down to a level associated with ~10% productivity loss instead.')
+        pass
     else:
         st.caption('For calibration: In our data, a typical improvement is 3–6 hours/week for those with significant barriers, and 1–2 hours/week for those with mild issues.')
     
+    # Productivity multiplier slider: always use config value
     productivity_multiplier = st.slider(
         'How much more productive is each working hour after the intervention? (e.g. 1.10 = 10% more productive)',
-        min_value=0.0, max_value=2.0, value=tab_defaults["productivity_multiplier"], step=0.01, key=f"productivity_multiplier_{tab_name}",
+        min_value=0.0, max_value=2.0, value=1.01 if tab_name == "Procrastination" else tab_defaults["productivity_multiplier"], step=0.01, key=f"productivity_multiplier_{tab_name}",
         help="Multiplier for productivity per hour post-intervention. >1 means more productive, <1 means less productive, 1 means no change."
     )
-    if tab_name == "Bespoke Offering":
-        st.caption("On average, a one point increase in Cantril's ladder is associated with a 12% increase in productivity. On average, people who do six sessions with us leave ~2.0 points happier. Both of these rely on correlational data, not causative, and are likely overestimates (hence the large reduction we present).")
-    else:
-        st.caption('For calibration: In the general public, productivity interventions rarely yield more than a 10–15% improvement per hour. For EAs with clinical issues, 10–20% is plausible.')
     
     implied_productivity_gain = ((post_hours * productivity_multiplier) - pre_hours) / pre_hours * 100 if pre_hours > 0 else 0
-    st.markdown(f"**Implied Productivity Gain:** {implied_productivity_gain:.1f}%")
+    # Make the implied productivity gain text larger
+    st.markdown(f"<span style='font-size:1.5em'><b>Implied Productivity Gain: {implied_productivity_gain:.1f}%</b></span>", unsafe_allow_html=True)
+    
+    # Add section to help user interpret the implied productivity gain (now config-based)
+    st.markdown("### How do I know if the implied productivity gain makes sense?")
+    productivity_explanation = programme_productivity_gain_explanations.get(tab_name, "The productivity gain estimate is based on the best available evidence and expert judgment for this type of intervention.")
+    st.markdown(productivity_explanation)
     
     retention_rate = st.slider(
         'Retention Rate (%)', 0.0, 100.0, value=tab_defaults["retention"], step=0.1, key=f"retention_rate_{tab_name}"
     ) / 100
+    # Add explanation and 65% statistic next to retention rate for Bespoke Offering
+    if tab_name == "Bespoke Offering":
+        st.caption("On average, 65% of EAs who do one session will go on to do at least six sessions. Retention rate here means the probability that a participant will complete every session in the programme, given that they attended the first session.")
+    elif tab_name in ["Insomnia", "Procrastination"]:
+        st.caption("Our average EA completion rate is ~60%. Both RCTs retrained >80% of users. We're estimating 70%.")
+    else:
+        st.caption("Our average EA completion rate is ~60%. Both RCTs retrained >80% of users. We're estimating for 75%, adjusted upwards because we think the RCT would have retained more users if they had known the results for those who completed, and we'll be advertising those results hard.")
     num_participants = st.slider(
         'Participants', min_value=10, max_value=1000, value=tab_defaults["num_participants"], step=1, key=f"num_participants_{tab_name}"
     )
